@@ -1,11 +1,18 @@
 {% extends 'bootstrap/base.html' %}
 
 {% block title %}
-    {% if title %}{{ title }} - Microblog{% else %}{{ _('Welcome to Microblog') }}{% endif %}
+    {% if title %}EDUCLASS · {{ title }}{% else %}{{ _('· EDUCLASS ·') }}{% endif %}
+{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        body { padding-top: 70px; }
+    </style>
 {% endblock %}
 
 {% block navbar %}
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -14,36 +21,49 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="{{ url_for('main.index') }}">Microblog</a>
+                <a class="navbar-brand" href="{{ url_for('main.index') }}">EDUCLASS</a>
             </div>
+
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li><a href="{{ url_for('main.index') }}">{{ _('Home') }}</a></li>
-                    <li><a href="{{ url_for('main.explore') }}">{{ _('Explore') }}</a></li>
+                    <li><a title="Início" href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+                    <li><a title="Calendário" href="{{ url_for('main.calendario') }}"><span class="glyphicon glyphicon-calendar"></span></a></li>
+                    <li><a title="Notas" href="{{ url_for('main.notas') }}"><span class="glyphicon glyphicon-bookmark"></span></a></li>
+                    <li><a title="Presenças" href="{{ url_for('main.presencas') }}"><span class="glyphicon glyphicon-check"></span></a></li>
+                    <li><a title="Turma" href="{{ url_for('main.turma') }}"><span class="glyphicon glyphicon-education"></span></a></li>
                 </ul>
+
                 {% if g.search_form %}
-                <form class="navbar-form navbar-left" method="get" action="{{ url_for('main.search') }}">
+                <form class="navbar-form navbar-right" method="get" action="{{ url_for('main.search') }}">
                     <div class="form-group">
                         {{ g.search_form.q(size=20, class='form-control', placeholder=g.search_form.q.label.text) }}
                     </div>
                 </form>
                 {% endif %}
+
                 <ul class="nav navbar-nav navbar-right">
                     {% if current_user.is_anonymous %}
-                    <li><a href="{{ url_for('auth.login') }}">{{ _('Login') }}</a></li>
+                    <li><a href="{{ url_for('auth.login') }}">{{ _('Entrar') }}</a></li>
                     {% else %}
-                    <li>
-                        <a href="{{ url_for('main.messages') }}">{{ _('Messages') }}
-                            {% set new_messages = current_user.new_messages() %}
-                            <span id="message_count" class="badge"
-                                  style="visibility: {% if new_messages %}visible
-                                                     {% else %}hidden{% endif %};">
-                                {{ new_messages }}
-                            </span>
-                        </a>
+
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Opções <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ url_for('main.user', username=current_user.username) }}">Olá, {{current_user.username}}!</a></li>
+                            <li>
+                                <a href="{{ url_for('main.messages') }}">{{ _('Mensagens') }}
+                                    {% set new_messages = current_user.new_messages() %}
+                                    <span id="message_count" class="badge"
+                                          style="visibility: {% if new_messages %}visible
+                                                             {% else %}hidden{% endif %};">
+                                        {{ new_messages }}
+                                    </span>
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="{{ url_for('auth.logout') }}">{{ _('Sair') }}</a></li>
+                          </ul>
                     </li>
-                    <li><a href="{{ url_for('main.user', username=current_user.username) }}">{{ _('Profile') }}</a></li>
-                    <li><a href="{{ url_for('auth.logout') }}">{{ _('Logout') }}</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -92,7 +112,7 @@
             }).done(function(response) {
                 $(destElem).text(response['text'])
             }).fail(function() {
-                $(destElem).text("{{ _('Error: Could not contact server.') }}");
+                $(destElem).text("{{ _('Erro: Não foi possível contactar o servidor.') }}");
             });
         }
         $(function () {
