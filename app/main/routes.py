@@ -35,7 +35,7 @@ def index():
                     language=language)
         db.session.add(post)
         db.session.commit()
-        flash(_('Your post is now live!'))
+        flash(_('Postagem feita com sucesso!'))
         return redirect(url_for('main.index'))
     page = request.args.get('page', 1, type=int)
     posts = current_user.followed_posts().paginate(
@@ -61,7 +61,7 @@ def explore():
         if posts.has_next else None
     prev_url = url_for('main.explore', page=posts.prev_num) \
         if posts.has_prev else None
-    return render_template('index.html', title=_('Explore'),
+    return render_template('index.html', title=_('Explorar'),
                            posts=posts.items, next_url=next_url,
                            prev_url=prev_url)
 
@@ -99,7 +99,7 @@ def edit_profile():
         current_user.username = form.username.data
         current_user.about_me = form.about_me.data
         db.session.commit()
-        flash(_('Your changes have been saved.'))
+        flash(_('Suas alterações foram salvas.'))
         return redirect(url_for('main.edit_profile'))
     elif request.method == 'GET':
         form.username.data = current_user.username
@@ -115,14 +115,14 @@ def follow(username):
     if form.validate_on_submit():
         user = User.query.filter_by(username=username).first()
         if user is None:
-            flash(_('User %(username)s not found.', username=username))
+            flash(_('Usuário %(username)s não encontrado.', username=username))
             return redirect(url_for('main.index'))
         if user == current_user:
-            flash(_('You cannot follow yourself!'))
+            flash(_('Você não pode seguir a si mesmo!'))
             return redirect(url_for('main.user', username=username))
         current_user.follow(user)
         db.session.commit()
-        flash(_('You are following %(username)s!', username=username))
+        flash(_('Você está seguindo %(username)s!', username=username))
         return redirect(url_for('main.user', username=username))
     else:
         return redirect(url_for('main.index'))
@@ -135,14 +135,14 @@ def unfollow(username):
     if form.validate_on_submit():
         user = User.query.filter_by(username=username).first()
         if user is None:
-            flash(_('User %(username)s not found.', username=username))
+            flash(_('Usuário %(username)s não encontrado.', username=username))
             return redirect(url_for('main.index'))
         if user == current_user:
-            flash(_('You cannot unfollow yourself!'))
+            flash(_('Você não pode deixar de seguir a si mesmo!'))
             return redirect(url_for('main.user', username=username))
         current_user.unfollow(user)
         db.session.commit()
-        flash(_('You are not following %(username)s.', username=username))
+        flash(_('Você não está seguindo %(username)s.', username=username))
         return redirect(url_for('main.user', username=username))
     else:
         return redirect(url_for('main.index'))
@@ -183,7 +183,7 @@ def send_message(recipient):
         db.session.add(msg)
         user.add_notification('unread_message_count', user.new_messages())
         db.session.commit()
-        flash(_('Your message has been sent.'))
+        flash(_('Sua mensagem foi enviada.'))
         return redirect(url_for('main.user', username=recipient))
     return render_template('send_message.html', title=_('Enviar Mensagem'),
                            form=form, recipient=recipient)
@@ -212,9 +212,9 @@ def messages():
 @login_required
 def export_posts():
     if current_user.get_task_in_progress('export_posts'):
-        flash(_('An export task is currently in progress'))
+        flash(_('Uma exportação já está em progresso'))
     else:
-        current_user.launch_task('export_posts', _('Exporting posts...'))
+        current_user.launch_task('export_posts', _('Exportando dados...'))
         db.session.commit()
     return redirect(url_for('main.user', username=current_user.username))
 
