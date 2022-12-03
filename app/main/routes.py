@@ -45,7 +45,7 @@ def index():
         if posts.has_next else None
     prev_url = url_for('main.index', page=posts.prev_num) \
         if posts.has_prev else None
-    return render_template('index.html', title=_('Home'), form=form,
+    return render_template('index.html', title=_('Início'), form=form,
                            posts=posts.items, next_url=next_url,
                            prev_url=prev_url)
 
@@ -79,7 +79,7 @@ def user(username):
     prev_url = url_for('main.user', username=user.username,
                        page=posts.prev_num) if posts.has_prev else None
     form = EmptyForm()
-    return render_template('user.html', user=user, posts=posts.items,
+    return render_template('user.html', title=_('Perfil'), user=user, posts=posts.items,
                            next_url=next_url, prev_url=prev_url, form=form)
 
 
@@ -88,7 +88,7 @@ def user(username):
 def user_popup(username):
     user = User.query.filter_by(username=username).first_or_404()
     form = EmptyForm()
-    return render_template('user_popup.html', user=user, form=form)
+    return render_template('user_popup.html', title=_('Perfil'), user=user, form=form)
 
 
 @bp.route('/edit_profile', methods=['GET', 'POST'])
@@ -104,7 +104,7 @@ def edit_profile():
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.about_me.data = current_user.about_me
-    return render_template('edit_profile.html', title=_('Edit Profile'),
+    return render_template('edit_profile.html', title=_('Editar Perfil'),
                            form=form)
 
 
@@ -168,7 +168,7 @@ def search():
         if total > page * current_app.config['POSTS_PER_PAGE'] else None
     prev_url = url_for('main.search', q=g.search_form.q.data, page=page - 1) \
         if page > 1 else None
-    return render_template('search.html', title=_('Search'), posts=posts,
+    return render_template('search.html', title=_('Pesquisa'), posts=posts,
                            next_url=next_url, prev_url=prev_url)
 
 
@@ -185,7 +185,7 @@ def send_message(recipient):
         db.session.commit()
         flash(_('Your message has been sent.'))
         return redirect(url_for('main.user', username=recipient))
-    return render_template('send_message.html', title=_('Send Message'),
+    return render_template('send_message.html', title=_('Enviar Mensagem'),
                            form=form, recipient=recipient)
 
 
@@ -204,7 +204,7 @@ def messages():
         if messages.has_next else None
     prev_url = url_for('main.messages', page=messages.prev_num) \
         if messages.has_prev else None
-    return render_template('messages.html', messages=messages.items,
+    return render_template('messages.html', title=_('Mensagens'), messages=messages.items,
                            next_url=next_url, prev_url=prev_url)
 
 
@@ -230,3 +230,27 @@ def notifications():
         'data': n.get_data(),
         'timestamp': n.timestamp
     } for n in notifications])
+
+
+@bp.route('/calendario')
+@login_required
+def calendario():
+    return render_template('calendario.html', title=_('Calendário'))
+
+
+@bp.route('/notas')
+@login_required
+def notas():
+    return render_template('notas.html', title=_('Notas'))
+
+
+@bp.route('/presencas')
+@login_required
+def presencas():
+    return render_template('presencas.html', title=_('Presenças'))
+
+
+@bp.route('/turma')
+@login_required
+def turma():
+    return render_template('turma.html', title=_('Turma'))
