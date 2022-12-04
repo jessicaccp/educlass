@@ -15,21 +15,6 @@ from app.search import add_to_index, remove_from_index, query_index
 from sqlalchemy_serializer import SerializerMixin
 
 
-student_subject_table = db.Table(
-    'student_subject', db.Model.metadata,
-    db.Column('student_id', db.Integer, db.ForeignKey(
-        'student.id')),
-    db.Column('subject_id', db.Integer, db.ForeignKey(
-        'subject.id'))
-)
-
-teacher_classroom_table = db.Table(
-    "teacher_classroom",
-    db.metadata,
-    db.Column("teacher_id", db.ForeignKey("teacher.id"), primary_key=True),
-    db.Column("classroom_id", db.ForeignKey("classroom.id"), primary_key=True),
-)
-
 
 class SearchableMixin(object):
     @classmethod
@@ -335,13 +320,6 @@ class Person(db.Model, SerializerMixin):
         'with_polymorphic': '*',
         "polymorphic_on": person_type
     }
-
-# association_legal_guardian_student = db.Table(
-#     'legal_guardian_student_table',  db.metadata, 
-#     db.Column('legal_guardian_id', db.Integer, db.ForeignKey("legal_guardian.id")),
-#     db.Column('student_id', db.Integer, db.ForeignKey("student.id")),
-# )
-
 
 class LegalGuardian(Person):
     __tablename__ = 'legal_guardian'

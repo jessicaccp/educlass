@@ -14,6 +14,7 @@ from app.main import bp
 import app.main.events as evt
 from functools import wraps
 
+
 def admin_required(f):
     @wraps(f)
     def wrap(*args, **kwargs):
@@ -24,6 +25,7 @@ def admin_required(f):
             return redirect(url_for('index'))
 
     return wrap
+
 
 @bp.before_app_request
 def before_request():
@@ -244,6 +246,7 @@ def notifications():
         'timestamp': n.timestamp
     } for n in notifications])
 
+
 @bp.route('/notas')
 @login_required
 def notas():
@@ -277,6 +280,7 @@ def termos_e_privacidade():
 def calendario():
     return render_template('calendar.html')
 
+
 @bp.route('/calendario/api/get', methods=["POST"])
 @login_required
 def get_calendar():
@@ -284,23 +288,25 @@ def get_calendar():
     events = evt.get(int(data["month"]), int(data["year"]))
     return "{}" if events is None else events
 
+
 @bp.route("/calendario/api/save", methods=["POST"])
-@admin_required
 @login_required
 def save():
-  data = dict(request.form)
-  ok = evt.save(data["s"], data["e"], data["t"], data["c"], data["b"], data["id"] if "id" in data else None)
-  msg = "OK" if ok else sys.last_value
-  return make_response(msg, 200)
+    data = dict(request.form)
+    ok = evt.save(data["s"], data["e"], data["t"], data["c"],
+                  data["b"], data["id"] if "id" in data else None)
+    msg = "OK" if ok else sys.last_value
+    return make_response(msg, 200)
+
 
 @bp.route("/calendario/api/delete", methods=["POST"])
 @admin_required
 @login_required
 def delete():
-  data = dict(request.form)
-  ok = evt.delete(data["id"])
-  msg = "OK" if ok else sys.last_value
-  return make_response(msg, 200)
+    data = dict(request.form)
+    ok = evt.delete(data["id"])
+    msg = "OK" if ok else sys.last_value
+    return make_response(msg, 200)
 
 
 @bp.route('/init')
@@ -322,7 +328,7 @@ def init_db():
         'last_name': 'Istrador',
         'cpf': '000.000.000-00',
     })
-
+    admin_user.set_password('12345')
     legal_user = User(**{
         'username': 'theo',
         'email': 'the@gmail.com'
@@ -345,10 +351,22 @@ def init_db():
     })
     student_user.set_password('12345')
 
+    student1 = Student(**{
+        'first_name': 'Crowley',
+        'last_name': 'Segundo',
+        'cpf': '939.393.939-39',
+    })
+    student_user1 = User(**{
+        'username': 'crowley',
+        'email': 'crowley@gmail.com'
+    })
+    student_user1.set_password('12345')
+
     teacher = Teacher(**{
         'first_name': 'Jupiter',
         'last_name': 'Terceiro',
         'cpf': '333.333.333-33',
+        'salary': '12.000,00'
     })
     teacher_user = User(**{
         'username': 'jupiter',
@@ -365,34 +383,56 @@ def init_db():
 
     student.subjects = [math, portuguese]
     student.legal_guardian = legal
+    student1.subjects = [math, portuguese]
+    student1.legal_guardian = legal
 
     admin_user.person = admin
     admin_user.roles = [admin_role, maintener_role, member_role]
 
-
     legal_user.person = legal
     legal_user.roles = [member_role]
-    
-    student_user.person = student
+
+    student_user.person = student1
     student_user.roles = [member_role]
+    student_user1.person = student1
+    student_user1.roles = [member_role]
 
     teacher_user.roles = [maintener_role, member_role]
     teacher_user.person = teacher
 
     classroom = Classroom()
     classroom.students.append(student)
+    classroom.students.append(student1)
     classroom.teachers.append(teacher)
 
-    
+    events = [
+        Event(
+            start=datetime.fromisoformat('2022-12-15 03:00:00'),
+            end=datetime.fromisoformat('2022-12-30 03:00:00'),
+            text='Férias',
+            color='#000000',
+            bg='#1aa7ec'
+        ),
+        Event(
+            start=datetime.fromisoformat('2022-12-05 03:00:00'),
+            end=datetime.fromisoformat('2022-12-09 03:00:00'),
+            text='Semana de provas',
+            color='#000000',
+            bg='#ffdbdb'
+        )
+    ]
+
     calendar = Calendar()
+    calendar.events = events
     classroom.calendar = calendar
 
-
     legal.wards.append(student)
+    db.session.add(admin_user)
     db.session.add(legal_user)
     db.session.add(student_user)
+    db.session.add(student_user1)
     db.session.add(teacher_user)
     db.session.add(classroom)
     db.session.commit()
-    
+
     return 'Deu bom'
