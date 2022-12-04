@@ -7,7 +7,7 @@ from langdetect import detect, LangDetectException
 from app import db
 from app.main.forms import EditProfileForm, EmptyForm, PostForm, SearchForm, \
     MessageForm
-from app.models import User, Post, Message, Notification
+from app.models import User, Post, Message, Notification, Event
 from app.translate import translate
 from app.main import bp
 
@@ -230,3 +230,17 @@ def notifications():
         'data': n.get_data(),
         'timestamp': n.timestamp
     } for n in notifications])
+
+
+@bp.route('/teste')
+def test():
+    rows = Event.query.all()
+    rows = [x.to_dict() for x in rows]
+    for d in rows:
+        d['class'] = d.pop('evt_class')
+        d['start'] = int(datetime.fromisoformat(d.pop('start_date')).timestamp() * 1000)
+        d['end'] = int(datetime.fromisoformat(d.pop('end_date')).timestamp() * 1000)
+        del d['calendar']
+        del d['calendar_id']
+        del d['classroom']
+    return render_template('calendar_events.html', event_list=rows)

@@ -12,6 +12,23 @@ import redis
 import rq
 from app import db, login
 from app.search import add_to_index, remove_from_index, query_index
+from sqlalchemy_serializer import SerializerMixin
+
+
+student_subject_table = db.Table(
+    'student_subject', db.Model.metadata,
+    db.Column('student_id', db.Integer, db.ForeignKey(
+        'student.id')),
+    db.Column('subject_id', db.Integer, db.ForeignKey(
+        'subject.id'))
+)
+
+teacher_classroom_table = db.Table(
+    "teacher_classroom",
+    db.metadata,
+    db.Column("teacher_id", db.ForeignKey("teacher.id"), primary_key=True),
+    db.Column("classroom_id", db.ForeignKey("classroom.id"), primary_key=True),
+)
 
 
 class SearchableMixin(object):
@@ -292,6 +309,115 @@ class Task(db.Model):
         job = self.get_rq_job()
         return job.meta.get('progress', 0) if job is not None else 100
 
-# class PersonalInfo(db.Model):
-#     id = db.Column(db.String(36), primary_key=True)
-#     name = db.Column(db.String(128))
+
+class Person(db.Model):
+    __abstract__ = True
+    first_name = db.Column(db.String(128))
+    last_name = db.Column(db.String(128))
+    cpf = db.Column(db.String(128), unique=True)
+    person_type = db.Column(db.String(50))
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'person',
+        'polymorphic_on': person_type
+    }
+
+
+class LegalGuardian(Person):
+    id = db.Column(db.Integer, primary_key=True)
+    wards = db.relationship('Student')
+    __mapper_args__ = {
+        'polymorphic_identity': 'legal_guardian'
+    }
+
+
+class Student(Person):
+    id = db.Column(db.Integer, primary_key=True)
+    subjects = db.relationship(
+        'Subject', secondary=student_subject_table, back_populates='students')
+    legal_guardian_id = db.Column(
+        db.Integer, db.ForeignKey('legal_guardian.id'))
+    classroom_id = db.Column(
+        db.Integer, db.ForeignKey('classroom.id'))
+    classroom = db.relationship(
+        'Classroom', foreign_keys=[classroom_id], back_populates='students')
+    __mapper_args__ = {
+        'polymorphic_identity': 'student'
+    }
+
+
+class Employee(Person):
+    __abstract__ = True
+    salary = db.Column(db.String(128))
+    employee_type = db.Column(db.String(50))
+    __mapper_args__ = {
+        'polymorphic_identity': 'employee',
+        'polymorphic_on': employee_type
+    }
+
+
+class Teacher(Employee):
+    id = db.Column(db.Integer, primary_key=True)
+    subjects = db.relationship(
+        'Subject', back_populates='teacher', lazy='dynamic')
+    classrooms = db.relationship(
+        'Classroom', secondary=teacher_classroom_table, back_populates='teachers')
+    __mapper_args__ = {
+        'polymorphic_identity': 'teacher'
+    }
+
+
+class Coordinator(Employee):
+    id = db.Column(db.Integer, primary_key=True)
+    __mapper_args__ = {
+        'polymorphic_identity': 'coordinator'
+    }
+
+
+class Assessment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    score = db.Column(db.Integer)
+    subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'))
+
+
+class Subject(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128))
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
+    teacher = db.relationship(
+        'Teacher', back_populates='subjects')
+    students = db.relationship(
+        'Student', secondary=student_subject_table, back_populates='subjects')
+
+
+class Event(db.Model, SerializerMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255))
+    evt_class = db.Column('class', db.String(255))
+    url = db.Column(db.String(255))
+    start_date = db.Column(db.DateTime, index=True,
+                           default=datetime.utcnow, onupdate=datetime.utcnow)
+    end_date = db.Column(db.DateTime, index=True)
+    calendar_id = db.Column(
+        db.Integer, db.ForeignKey('calendar.id'))
+    calendar = db.relationship('Calendar', back_populates='events')
+    classroom = db.relationship(
+        'Calendar', back_populates='events')
+
+
+class Calendar(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    classroom_id = db.Column(db.Integer, db.ForeignKey('classroom.id'))
+    classroom = db.relationship(
+        "Classroom", back_populates="calendar")
+    events = db.relationship('Event', back_populates='calendar')
+
+
+class Classroom(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    students = db.relationship(
+        'Student', back_populates='classroom')
+    teachers = db.relationship(
+        'Teacher', secondary=teacher_classroom_table, back_populates='classrooms')
+    calendar = db.relationship(
+        "Calendar", back_populates="classroom", uselist=False)
