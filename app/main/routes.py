@@ -291,7 +291,6 @@ def get_calendar():
     return "{}" if events is None else events
 
 @bp.route("/calendario/api/save", methods=["POST"])
-@admin_required
 @login_required
 def save():
   data = dict(request.form)
@@ -300,7 +299,6 @@ def save():
   return make_response(msg, 200)
 
 @bp.route("/calendario/api/delete", methods=["POST"])
-@admin_required
 @login_required
 def delete():
   data = dict(request.form)
