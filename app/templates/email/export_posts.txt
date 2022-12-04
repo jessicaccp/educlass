@@ -1,7 +1,7 @@
-Dear {{ user.username }},
+Olá, {{ user.username }},
 
-Please find attached the archive of your posts that you requested.
+Segue em anexo o arquivo com os seus dados, como solicitado.</p>
 
-Sincerely,
+Atenciosamente,
 
-The Microblog Team
+Time EDUCLASS

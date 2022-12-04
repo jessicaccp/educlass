@@ -6,42 +6,40 @@ from app.models import User
 
 
 class LoginForm(FlaskForm):
-    institution = SelectField(u'Instituição', choices=['UECE', 'UNICAMP'], validators=[DataRequired()])
-    username = StringField(_l('Username'), validators=[DataRequired()])
-    password = PasswordField(_l('Password'), validators=[DataRequired()])
-    remember_me = BooleanField(_l('Remember Me'))
-    submit = SubmitField(_l('Sign In'))
+    username = StringField(_l('Nome de usuário'), validators=[DataRequired()])
+    password = PasswordField(_l('Senha'), validators=[DataRequired()])
+    remember_me = BooleanField(_l('Lembre-me'))
+    submit = SubmitField(_l('Entrar'))
 
 
 class RegistrationForm(FlaskForm):
-    institution = SelectField(u'Instituição', choices=['UECE', 'UNICAMP'], validators=[DataRequired()])
-    username = StringField(_l('Username'), validators=[DataRequired()])
-    email = StringField(_l('Email'), validators=[DataRequired(), Email()])
-    password = PasswordField(_l('Password'), validators=[DataRequired()])
+    username = StringField(_l('Nome de usuário'), validators=[DataRequired()])
+    email = StringField(_l('E-mail'), validators=[DataRequired(), Email()])
+    password = PasswordField(_l('Senha'), validators=[DataRequired()])
     password2 = PasswordField(
-        _l('Repeat Password'), validators=[DataRequired(),
+        _l('Repita a senha'), validators=[DataRequired(),
                                            EqualTo('password')])
-    submit = SubmitField(_l('Register'))
+    submit = SubmitField(_l('Cadastrar'))
 
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
         if user is not None:
-            raise ValidationError(_('Please use a different username.'))
+            raise ValidationError(_('Por favor, escolha um nome de usuário diferente.'))
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
-            raise ValidationError(_('Please use a different email address.'))
+            raise ValidationError(_('Por favor, escolha um endereço de e-mail diferente.'))
 
 
 class ResetPasswordRequestForm(FlaskForm):
-    email = StringField(_l('Email'), validators=[DataRequired(), Email()])
-    submit = SubmitField(_l('Request Password Reset'))
+    email = StringField(_l('E-mail'), validators=[DataRequired(), Email()])
+    submit = SubmitField(_l('Solicitar mudança de senha'))
 
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField(_l('Password'), validators=[DataRequired()])
+    password = PasswordField(_l('Senha'), validators=[DataRequired()])
     password2 = PasswordField(
-        _l('Repeat Password'), validators=[DataRequired(),
+        _l('Repita a senha'), validators=[DataRequired(),
                                            EqualTo('password')])
-    submit = SubmitField(_l('Request Password Reset'))
+    submit = SubmitField(_l('Solicitar mudança de senha'))
