@@ -1,16 +1,29 @@
 from datetime import datetime
+import sys
 from flask import render_template, flash, redirect, url_for, request, g, \
-    jsonify, current_app
+    jsonify, current_app, make_response
 from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 from langdetect import detect, LangDetectException
 from app import db
 from app.main.forms import EditProfileForm, EmptyForm, PostForm, SearchForm, \
     MessageForm
-from app.models import User, Post, Message, Notification
+from app.models import *
 from app.translate import translate
 from app.main import bp
+import app.main.events as evt
+from functools import wraps
 
+def admin_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if "Admin" in current_user.roles or "Mainteiner" in current_user.roles:
+            return f(*args, **kwargs)
+        else:
+            flash("You need to be an admin to view this page.")
+            return redirect(url_for('index'))
+
+    return wrap
 
 @bp.before_app_request
 def before_request():
@@ -264,3 +277,128 @@ def support():
 @bp.route('/terms_and_privacy')
 def terms_and_privacy():
     return render_template('terms_and_privacy.html', title=_('Termos e Privacidade'))
+
+@bp.route('/calendario', methods=["GET", "POST"])
+@login_required
+def calendario():
+    return render_template('calendar.html')
+
+@bp.route('/calendario/api/get', methods=["POST"])
+@login_required
+def get_calendar():
+    data = dict(request.form)
+    events = evt.get(int(data["month"]), int(data["year"]))
+    return "{}" if events is None else events
+
+@bp.route("/calendario/api/save", methods=["POST"])
+@admin_required
+@login_required
+def save():
+  data = dict(request.form)
+  ok = evt.save(data["s"], data["e"], data["t"], data["c"], data["b"], data["id"] if "id" in data else None)
+  msg = "OK" if ok else sys.last_value
+  return make_response(msg, 200)
+
+@bp.route("/calendario/api/delete", methods=["POST"])
+@admin_required
+@login_required
+def delete():
+  data = dict(request.form)
+  ok = evt.delete(data["id"])
+  msg = "OK" if ok else sys.last_value
+  return make_response(msg, 200)
+
+
+@bp.route('/init')
+def init_db():
+    db.drop_all()
+    db.create_all()
+
+    admin_role = Role(name='Admin')
+    maintener_role = Role(name='Mainteiner')
+    member_role = Role(name='Member')
+
+    admin_user = User(**{
+        'username': 'admin',
+        'email': 'admin@gmail.com'
+    })
+
+    admin = Person(**{
+        'first_name': 'Admin',
+        'last_name': 'Istrador',
+        'cpf': '000.000.000-00',
+    })
+
+    legal_user = User(**{
+        'username': 'theo',
+        'email': 'the@gmail.com'
+    })
+    legal = LegalGuardian(**{
+        'first_name': 'Theobaldo',
+        'last_name': 'Primeiro',
+        'cpf': '111.111.111-11',
+    })
+    legal_user.set_password('12345')
+
+    student = Student(**{
+        'first_name': 'Nero',
+        'last_name': 'Segundo',
+        'cpf': '222.222.222-22',
+    })
+    student_user = User(**{
+        'username': 'nero',
+        'email': 'nero@gmail.com'
+    })
+    student_user.set_password('12345')
+
+    teacher = Teacher(**{
+        'first_name': 'Jupiter',
+        'last_name': 'Terceiro',
+        'cpf': '333.333.333-33',
+    })
+    teacher_user = User(**{
+        'username': 'jupiter',
+        'email': 'jupiter@gmail.com'
+    })
+    teacher_user.set_password('12345')
+
+    math = Subject(**{
+        'name': 'Matemática'
+    })
+    portuguese = Subject(**{
+        'name': 'Português'
+    })
+
+    student.subjects = [math, portuguese]
+    student.legal_guardian = legal
+
+    admin_user.person = admin
+    admin_user.roles = [admin_role, maintener_role, member_role]
+
+
+    legal_user.person = legal
+    legal_user.roles = [member_role]
+    
+    student_user.person = student
+    student_user.roles = [member_role]
+
+    teacher_user.roles = [maintener_role, member_role]
+    teacher_user.person = teacher
+
+    classroom = Classroom()
+    classroom.students.append(student)
+    classroom.teachers.append(teacher)
+
+    
+    calendar = Calendar()
+    classroom.calendar = calendar
+
+
+    legal.wards.append(student)
+    db.session.add(legal_user)
+    db.session.add(student_user)
+    db.session.add(teacher_user)
+    db.session.add(classroom)
+    db.session.commit()
+    
+    return 'Deu bom'
