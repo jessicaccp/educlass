@@ -1,111 +1,182 @@
 {% extends 'bootstrap/base.html' %}
 
+<!-- title -->
 {% block title %}
-    {% if title %}EDUCLASS · {{ title }}{% else %}{{ _('· EDUCLASS ·') }}{% endif %}
+    {% if title %}EDUCLASS · {{ title }}{% else %}{{ _('EDUCLASS') }}{% endif %}
 {% endblock %}
+<!-- / -->
 
+<!-- head -->
 {% block head %}
     {{ super() }}
-    <style type="text/css">
-        body { padding-top: 70px; }
-    </style>
-{% endblock %}
 
+    <!-- css adicional -->
+    <style type="text/css">
+        body {
+            padding-top: 70px;
+            padding-bottom: 30px;
+        }
+
+        footer {
+            padding: 0 10px;
+            position: fixed;
+            bottom: 0;
+            background-color: white;
+            width: 100%;
+            height: 20px
+        }
+    </style>
+    <!-- / -->
+
+{% endblock %}
+<!-- / -->
+
+<!-- navbar -->
 {% block navbar %}
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">
+            
+            <!-- header à esquerda -->
             <div class="navbar-header">
+
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
+
+                <!-- nome da empresa -->
                 <a class="navbar-brand" href="{{ url_for('main.index') }}">EDUCLASS</a>
-            </div>
+                <!-- / -->
 
+            </div>
+            <!-- / -->
+
+            <!-- header à direita -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                {% if current_user.is_anonymous %}
-                {% else %}
-                <ul class="nav navbar-nav">
-                    <li><a title="Início" href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
-                    <li><a title="Calendário" href="{{ url_for('main.calendario') }}"><span class="glyphicon glyphicon-calendar"></span></a></li>
-                    <li><a title="Notas" href="{{ url_for('main.notas') }}"><span class="glyphicon glyphicon-bookmark"></span></a></li>
-                    <li><a title="Presenças" href="{{ url_for('main.presencas') }}"><span class="glyphicon glyphicon-check"></span></a></li>
-                    <li><a title="Turma" href="{{ url_for('main.turma') }}"><span class="glyphicon glyphicon-education"></span></a></li>
-                </ul>
-                {% endif %}
 
-                {% if g.search_form %}
-                <form class="navbar-form navbar-left" method="get" action="{{ url_for('main.search') }}">
-                    <div class="form-group">
-                        {{ g.search_form.q(size=20, class='form-control', placeholder=g.search_form.q.label.text) }}
-                    </div>
-                </form>
-                {% endif %}
-
+                <!-- menu dropdown -->
                 <ul class="nav navbar-nav navbar-right">
-                    {% if current_user.is_anonymous %}
-                    <li><a href="{{ url_for('auth.login') }}">{{ _('Entrar') }}</a></li>
-                    {% else %}
 
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Opções <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('main.user', username=current_user.username) }}">Olá, {{current_user.username}}!</a></li>
-                            <li>
-                                <a href="{{ url_for('main.messages') }}">{{ _('Mensagens') }}
-                                    {% set new_messages = current_user.new_messages() %}
-                                    <span id="message_count" class="badge"
-                                          style="visibility: {% if new_messages %}visible
-                                                             {% else %}hidden{% endif %};">
-                                        {{ new_messages }}
-                                    </span>
-                                </a>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="{{ url_for('auth.logout') }}">{{ _('Sair') }}</a></li>
-                          </ul>
-                    </li>
+                    <!-- link para login -->
+                    {% if current_user.is_anonymous %}
+                        <li><a href="{{ url_for('auth.login') }}">{{ _('Entrar') }}</a></li>
+                    <!-- / -->
+
+                    <!-- área do usuário -->
+                    {% else %}
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                                aria-expanded="false"><span class="glyphicon glyphicon-menu-down"></span></a>
+                            <ul class="dropdown-menu">
+
+                                <!-- caixa de pesquisa -->
+                                {% if g.search_form %}
+                                    <form class="navbar-form" method="get" action="{{ url_for('main.search') }}">
+                                        <div class="form-group">
+                                            {{ g.search_form.q(size=20, class='form-control', placeholder=g.search_form.q.label.text) }}
+                                        </div>
+                                    </form>
+                                {% endif %}
+                                <!-- / -->
+
+                                <!-- links para páginas -->
+                                <li><a title="Início" href="{{ url_for('main.index') }}"><span
+                                    class="glyphicon glyphicon-home"></span> Início</a></li>
+                                <li><a title="Calendário" href="{{ url_for('main.calendar') }}"><span
+                                            class="glyphicon glyphicon-calendar"></span> Calendário</a></li>
+                                <li><a title="Notas" href="{{ url_for('main.grades') }}"><span
+                                            class="glyphicon glyphicon-bookmark"></span> Notas</a></li>
+                                <li><a title="Presenças" href="{{ url_for('main.attendance') }}"><span
+                                            class="glyphicon glyphicon-check"></span> Frequência</a></li>
+                                <li><a title="Turma" href="{{ url_for('main.classroom') }}"><span
+                                            class="glyphicon glyphicon-education"></span> Turma</a></li>
+                                <!-- / -->
+
+                                <li role="separator" class="divider"></li>
+
+                                <!-- perfil, mensagens e logout -->
+                                <li><a href="{{ url_for('main.user', username=current_user.username) }}">Olá,
+                                        {{current_user.username}}!</a></li>
+                                <li>
+                                    <a href="{{ url_for('main.messages') }}">{{ _('Mensagens') }}
+                                        {% set new_messages = current_user.new_messages() %}
+                                        <span id="message_count" class="badge" style="visibility: {% if new_messages %}visible
+                                                                    {% else %}hidden{% endif %};">
+                                            {{ new_messages }}
+                                        </span>
+                                    </a>
+                                </li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="{{ url_for('auth.logout') }}">{{ _('Sair') }}</a></li>
+                                <!-- / -->
+
+                            </ul>
+                        </li>
                     {% endif %}
+                    <!-- / -->
+                    
                 </ul>
+                <!-- / -->
+
             </div>
+            <!-- / -->
+
         </div>
     </nav>
 {% endblock %}
+<!-- / -->
 
+<!-- content -->
 {% block content %}
     <div class="container">
         {% if current_user.is_authenticated %}
-        {% with tasks = current_user.get_tasks_in_progress() %}
-        {% if tasks %}
-            {% for task in tasks %}
-            <div class="alert alert-success" role="alert">
-                {{ task.description }}
-                <span id="{{ task.id }}-progress">{{ task.get_progress() }}</span>%
-            </div>
-            {% endfor %}
+            {% with tasks = current_user.get_tasks_in_progress() %}
+                {% if tasks %}
+                    {% for task in tasks %}
+                        <div class="alert alert-success" role="alert">
+                            {{ task.description }}
+                            <span id="{{ task.id }}-progress">{{ task.get_progress() }}</span>%
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
         {% endif %}
-        {% endwith %}
-        {% endif %}
+
         {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-info" role="alert">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
         {% endwith %}
 
         {# application content needs to be provided in the app_content block #}
-        {% block app_content %}{% endblock %}
+        {% block app_content %}
+        {% endblock %}
     </div>
 
+    <!-- footer -->
     {{super()}}
     {%- block footer %}
-        <footer></footer>
+        {% if current_user.is_anonymous %}
+        {% else %}
+            <footer>
+                <p>
+                    <small>EDUCLASS 2022 ·
+                    <a href="{{ url_for('main.terms_and_privacy') }}">Termos e Privacidade</a> · 
+                    <a href="{{ url_for('main.support') }}">Suporte</a></small>
+                </p>
+            </footer>
+        {% endif %}
     {%- endblock footer %}
-{% endblock %}
+    <!-- / -->
 
+{% endblock %}
+<!-- / -->
+
+<!-- scripts -->
 {% block scripts %}
     {{ super() }}
     {{ moment.include_moment() }}
@@ -117,9 +188,9 @@
                 text: $(sourceElem).text(),
                 source_language: sourceLang,
                 dest_language: destLang
-            }).done(function(response) {
+            }).done(function (response) {
                 $(destElem).text(response['text'])
-            }).fail(function() {
+            }).fail(function () {
                 $(destElem).text("{{ _('Erro: Não foi possível contactar o servidor.') }}");
             });
         }
@@ -127,14 +198,14 @@
             var timer = null;
             var xhr = null;
             $('.user_popup').hover(
-                function(event) {
+                function (event) {
                     // mouse in event handler
                     var elem = $(event.currentTarget);
-                    timer = setTimeout(function() {
+                    timer = setTimeout(function () {
                         timer = null;
                         xhr = $.ajax(
                             '/user/' + elem.first().text().trim() + '/popup').done(
-                                function(data) {
+                                function (data) {
                                     xhr = null;
                                     elem.popover({
                                         trigger: 'manual',
@@ -148,7 +219,7 @@
                             );
                     }, 1000);
                 },
-                function(event) {
+                function (event) {
                     // mouse out event handler
                     var elem = $(event.currentTarget);
                     if (timer) {
@@ -173,27 +244,28 @@
             $('#' + task_id + '-progress').text(progress);
         }
         {% if current_user.is_authenticated %}
-        $(function() {
-            var since = 0;
-            setInterval(function() {
-                $.ajax('{{ url_for('main.notifications') }}?since=' + since).done(
-                    function(notifications) {
-                        for (var i = 0; i < notifications.length; i++) {
-                            switch (notifications[i].name) {
-                                case 'unread_message_count':
-                                    set_message_count(notifications[i].data);
-                                    break;
-                                case 'task_progress':
-                                    set_task_progress(notifications[i].data.task_id,
-                                        notifications[i].data.progress);
-                                    break;
+            $(function () {
+                var since = 0;
+                setInterval(function () {
+                    $.ajax('{{ url_for('main.notifications') }}?since=' + since).done(
+                        function (notifications) {
+                            for (var i = 0; i < notifications.length; i++) {
+                                switch (notifications[i].name) {
+                                    case 'unread_message_count':
+                                        set_message_count(notifications[i].data);
+                                        break;
+                                    case 'task_progress':
+                                        set_task_progress(notifications[i].data.task_id,
+                                            notifications[i].data.progress);
+                                        break;
+                                }
+                                since = notifications[i].timestamp;
                             }
-                            since = notifications[i].timestamp;
                         }
-                    }
-                );
-            }, 10000);
-        });
+                    );
+                }, 10000);
+            });
         {% endif %}
     </script>
 {% endblock %}
+<!-- / -->
