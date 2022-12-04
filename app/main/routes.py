@@ -232,35 +232,35 @@ def notifications():
     } for n in notifications])
 
 
-@bp.route('/calendario')
+@bp.route('/calendar')
 @login_required
-def calendario():
-    return render_template('calendario.html', title=_('Calendário'))
+def calendar():
+    return render_template('calendar.html', title=_('Calendário'))
 
 
-@bp.route('/notas')
+@bp.route('/grades')
 @login_required
-def notas():
-    return render_template('notas.html', title=_('Notas'))
+def grades():
+    return render_template('grades.html', title=_('Notas'))
 
 
-@bp.route('/presencas')
+@bp.route('/attendance')
 @login_required
-def presencas():
-    return render_template('presencas.html', title=_('Presenças'))
+def attendance():
+    return render_template('attendance.html', title=_('Presenças'))
 
 
-@bp.route('/turma')
+@bp.route('/classroom')
 @login_required
-def turma():
-    return render_template('turma.html', title=_('Turma'))
+def classroom():
+    return render_template('classroom.html', title=_('Turma'))
 
 
-@bp.route('/suporte')
-def suporte():
-    return render_template('suporte.html', title=_('Suporte'))
+@bp.route('/support')
+def support():
+    return render_template('support.html', title=_('Suporte'))
 
 
-@bp.route('/termos_e_privacidade')
-def termos_e_privacidade():
-    return render_template('termos_e_privacidade.html', title=_('Termos e Privacidade'))
+@bp.route('/terms_and_privacy')
+def terms_and_privacy():
+    return render_template('terms_and_privacy.html', title=_('Termos e Privacidade'))
