@@ -254,3 +254,13 @@ def presencas():
 @login_required
 def turma():
     return render_template('turma.html', title=_('Turma'))
+
+
+@bp.route('/suporte')
+def suporte():
+    return render_template('suporte.html', title=_('Suporte'))
+
+
+@bp.route('/termos_e_privacidade')
+def termos_e_privacidade():
+    return render_template('termos_e_privacidade.html', title=_('Termos e Privacidade'))

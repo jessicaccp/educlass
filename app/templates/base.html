@@ -25,6 +25,8 @@
             </div>
 
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                {% if current_user.is_anonymous %}
+                {% else %}
                 <ul class="nav navbar-nav">
                     <li><a title="Início" href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
                     <li><a title="Calendário" href="{{ url_for('main.calendario') }}"><span class="glyphicon glyphicon-calendar"></span></a></li>
@@ -32,9 +34,10 @@
                     <li><a title="Presenças" href="{{ url_for('main.presencas') }}"><span class="glyphicon glyphicon-check"></span></a></li>
                     <li><a title="Turma" href="{{ url_for('main.turma') }}"><span class="glyphicon glyphicon-education"></span></a></li>
                 </ul>
+                {% endif %}
 
                 {% if g.search_form %}
-                <form class="navbar-form navbar-right" method="get" action="{{ url_for('main.search') }}">
+                <form class="navbar-form navbar-left" method="get" action="{{ url_for('main.search') }}">
                     <div class="form-group">
                         {{ g.search_form.q(size=20, class='form-control', placeholder=g.search_form.q.label.text) }}
                     </div>
@@ -96,6 +99,11 @@
         {# application content needs to be provided in the app_content block #}
         {% block app_content %}{% endblock %}
     </div>
+
+    {{super()}}
+    {%- block footer %}
+        <footer></footer>
+    {%- endblock footer %}
 {% endblock %}
 
 {% block scripts %}
