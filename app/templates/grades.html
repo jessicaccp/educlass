@@ -46,12 +46,12 @@
       </tr>
     </thead>
     <tbody>
-      <!-- {% for teacher in teachers %} -->
+      {% for student_subject in student_subject_list %}
       <tr>
-        <td></td>
-        <td></td>
+        <td>{{ student_subject.subject.name }}</td>
+        <td>{{ student_subject.score }}/100</td>
       </tr>
-      <!-- {% endfor %} -->
+      {% endfor %}
     </tbody>
   </table>
 </div>

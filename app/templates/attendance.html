@@ -47,13 +47,13 @@
       </tr>
     </thead>
     <tbody>
-      <!-- {% for teacher in teachers %} -->
+      {% for student_subject in student_subject_list %}
       <tr>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td>{{ student_subject.subject.name }}</td>
+        <td>{{ student_subject.attendance }}</td>
+        <td>{{ student_subject.fault }}</td>
       </tr>
-      <!-- {% endfor %} -->
+      {% endfor %}
     </tbody>
   </table>
 </div>

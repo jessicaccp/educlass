@@ -23,7 +23,7 @@ def admin_required(f):
             return f(*args, **kwargs)
         else:
             flash("You need to be an admin to view this page.")
-            return redirect(url_for('index'))
+            return redirect(url_for('main.index'))
 
     return wrap
 
@@ -253,27 +253,35 @@ def notifications():
 @bp.route('/calendar')
 @login_required
 def calendar():
-    return render_template('calendar.html', title=_('Calendário'))
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    enable_button = True if Employee.query.filter_by(employee_id=user.person_id).first() else False
+    return render_template('calendar.html', title=_('Calendário'), enable_button=enable_button)
 
 
 @bp.route('/grades')
 @login_required
 def grades():
-    return render_template('grades.html', title=_('Notas'))
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    student_subject_list = StudentSubject.query.filter_by(student_id=user.person_id).all()
+    return render_template('grades.html', title=_('Notas'), student_subject_list=student_subject_list)
 
 
 @bp.route('/attendance')
 @login_required
 def attendance():
-    return render_template('attendance.html', title=_('Presenças'))
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    student_subject_list = StudentSubject.query.filter_by(student_id=user.person_id).all()
+
+    return render_template('attendance.html', title=_('Frequência'), student_subject_list=student_subject_list)
 
 
 @bp.route('/classroom')
 @login_required
 def classroom():
-    teachers = Teacher.query.all()
-    subjects = ['Matemática']
-    return render_template('classroom.html', title=_('Turma'), teachers=teachers, subjects=subjects)
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    student = Student.query.filter_by(id=user.person_id).first_or_404()
+    
+    return render_template('classroom.html', title=_('Turma'), teachers=student.classroom.teachers)
 
 
 @bp.route('/support')
@@ -285,18 +293,27 @@ def support():
 def terms_and_privacy():
     return render_template('terms_and_privacy.html', title=_('Termos e Privacidade'))
 
-
-@bp.route('/calendario', methods=["GET", "POST"])
-@login_required
-def calendario():
-    return render_template('calendar.html')
-
-
 @bp.route('/calendario/api/get', methods=["POST"])
 @login_required
 def get_calendar():
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    #Bug de herança multipla
+    teachers = Teacher.query.all()
+    students = Student.query.all()
+    legals = LegalGuardian.query.all()
+    calendars_ids = []
+    teacher = next((x for x in teachers if x.id == user.person_id), None)
+    student = next((x for x in students if x.id == user.person_id), None)
+    legal = next((x for x in legals if x.id == user.person_id), None)
+    if teacher:
+        calendars_ids.append(teacher.classroom.calendar.id)
+    elif student:
+        calendars_ids.append(student.classroom.calendar.id)
+    elif legal:
+        for w in legal.wards:
+            calendars_ids.append(w.classroom.calendar.id)
     data = dict(request.form)
-    events = evt.get(int(data["month"]), int(data["year"]))
+    events = evt.get(int(data["month"]), int(data["year"]), calendars_ids)
     return "{}" if events is None else events
 
 
@@ -304,6 +321,7 @@ def get_calendar():
 @login_required
 def save():
     data = dict(request.form)
+    
     ok = evt.save(data["s"], data["e"], data["t"], data["c"],
                   data["b"], data["id"] if "id" in data else None)
     msg = "OK" if ok else sys.last_value
@@ -347,14 +365,14 @@ def init_db():
     legal = LegalGuardian(**{
         'first_name': 'Theobaldo',
         'last_name': 'Primeiro',
-        'cpf': '111.111.111-11',
+        'cpf': '111.111.111-11'
     })
     legal_user.set_password('12345')
 
     student = Student(**{
         'first_name': 'Nero',
         'last_name': 'Segundo',
-        'cpf': '222.222.222-22',
+        'cpf': '222.222.222-22'
     })
     student_user = User(**{
         'username': 'nero',
@@ -388,20 +406,6 @@ def init_db():
     fisica = Subject(**{
         'name': 'Física'
     })
-
-    teacher = Teacher(**{
-        'first_name': 'Edward ',
-        'last_name': 'Crowley',
-        'cpf': '939.393.939-39',
-        'salary': '12.000,00',
-        'subject': quimica,
-        'person_type': 'employee'
-    })
-    teacher_user = User(**{
-        'username': 'crowley',
-        'email': 'crowley@gmail.com'
-    })
-    teacher_user.set_password('12345')
 
     teacher1 = Teacher(**{
         'first_name': 'Dion',
@@ -445,18 +449,32 @@ def init_db():
     })
     teacher_user3.set_password('12345')
 
+    teacher4 = Teacher(**{
+        'first_name': 'Edward',
+        'last_name': 'Crowley',
+        'cpf': '777.777.777-77',
+        'salary': '12.000,00',
+        'subject': quimica,
+        'person_type': 'employee'
+    })
+    teacher_user4 = User(**{
+        'username': 'crowley',
+        'email': 'crowley@gmail.com'
+    })
+    teacher_user4.set_password('12345')
+
     student.legal_guardian = legal
     student1.legal_guardian = legal
 
     stu_sub = StudentSubject(fault=randint(
-        0, 10), attendence=randint(5, 20), score=randint(1, 100), subject=matematica, student=student)
+        0, 10), attendance=randint(5, 20), score=randint(1, 100), subject=matematica, student=student)
     stu_sub2 = StudentSubject(fault=randint(
-        0, 10), attendence=randint(5, 20), score=randint(1, 100), subject=literatura, student=student)
+        0, 10), attendance=randint(5, 20), score=randint(1, 100), subject=literatura, student=student)
 
     stu_sub3 = StudentSubject(fault=randint(
-        0, 10), attendence=randint(5, 20), score=randint(1, 100), subject=fisica, student=student1)
+        0, 10), attendance=randint(5, 20), score=randint(1, 100), subject=fisica, student=student1)
     stu_sub4 = StudentSubject(fault=randint(
-        0, 10), attendence=randint(5, 20), score=randint(1, 100), subject=quimica, student=student1)
+        0, 10), attendance=randint(5, 20), score=randint(1, 100), subject=quimica, student=student1)
 
     admin_user.person = admin
     admin_user.roles = [admin_role, maintener_role, member_role]
@@ -464,23 +482,29 @@ def init_db():
     legal_user.person = legal
     legal_user.roles = [member_role]
 
-    student_user.person = student1
+    student_user.person = student
     student_user.roles = [member_role]
     student_user1.person = student1
     student_user1.roles = [member_role]
 
-    teacher_user.roles = [maintener_role, member_role]
-    teacher_user.person = teacher
+    teacher_user1.roles = [maintener_role, member_role]
+    teacher_user1.person = teacher1
+    teacher_user2.roles = [maintener_role, member_role]
+    teacher_user2.person = teacher2
+    teacher_user3.roles = [maintener_role, member_role]
+    teacher_user3.person = teacher3
+    teacher_user4.roles = [maintener_role, member_role]
+    teacher_user4.person = teacher4
 
     classroom1 = Classroom(id=1)
     classroom1.students.append(student)
-    classroom1.teachers.append(teacher)
     classroom1.teachers.append(teacher1)
+    classroom1.teachers.append(teacher2)
 
     classroom2 = Classroom(id=2)
     classroom2.students.append(student1)
-    classroom2.teachers.append(teacher2)
     classroom2.teachers.append(teacher3)
+    classroom2.teachers.append(teacher4)
 
     events1 = [
         Event(
@@ -516,24 +540,23 @@ def init_db():
         )
     ]
 
-    calendar1 = Calendar()
-    calendar1.events = events1
+    calendar1 = Calendar(events=events1)
     classroom1.calendar = calendar1
 
-    calendar2 = Calendar()
-    calendar2.events = events2
+    calendar2 = Calendar(events=events2)
     classroom2.calendar = calendar2
 
     db.session.add(admin_user)
     db.session.add(legal_user)
     db.session.add(student_user)
     db.session.add(student_user1)
-    db.session.add(teacher_user)
     db.session.add(teacher_user1)
     db.session.add(teacher_user2)
     db.session.add(teacher_user3)
+    db.session.add(teacher_user4)
     db.session.add(classroom1)
     db.session.add(classroom2)
     db.session.commit()
-
+    
+    print(Teacher.query.all())
     return 'Deu bom'

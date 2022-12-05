@@ -439,7 +439,7 @@ class StudentSubject(db.Model):
         'subject.id'), primary_key=True)
 
     fault = db.Column(db.Integer)
-    attendence = db.Column(db.Integer)
+    attendance = db.Column(db.Integer)
     score = db.Column(db.Integer)
 
     student = db.relationship('Student', back_populates='subjects')
