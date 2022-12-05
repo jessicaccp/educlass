@@ -1,8 +1,8 @@
     <table class="table table-hover">
         <tr>
-            <td width="70px">
+            <td width="40px">
                 <a href="{{ url_for('main.user', username=post.author.username) }}">
-                    <img class="img-circle" src="{{ post.author.avatar(70) }}" />
+                    <img class="img-circle" src="{{ post.author.avatar(40) }}" />
                 </a>
             </td>
             <td>
@@ -17,7 +17,7 @@
                     username=user_link, when=moment(post.timestamp).fromNow()) }}
                 <br>
                 <span id="post{{ post.id }}">{{ post.body }}</span>
-                {% if post.language and post.language != g.locale %}
+                <!-- {% if post.language and post.language != g.locale %}
                 <br><br>
                 <span id="translation{{ post.id }}">
                     <a href="javascript:translate(
@@ -26,7 +26,7 @@
                                 '{{ post.language }}',
                                 '{{ g.locale }}');">{{ _('Traduzir') }}</a>
                 </span>
-                {% endif %}
+                {% endif %} -->
             </td>
         </tr>
     </table>
