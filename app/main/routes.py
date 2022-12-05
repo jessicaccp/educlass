@@ -321,9 +321,16 @@ def get_calendar():
 @login_required
 def save():
     data = dict(request.form)
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    #Bug de herança multipla
+    teachers = Teacher.query.all()
+    calendar_id =  None
+    teacher = next((x for x in teachers if x.id == user.person_id), None)
+    if teacher:
+        calendar_id = teacher.classroom.calendar.id
     
     ok = evt.save(data["s"], data["e"], data["t"], data["c"],
-                  data["b"], data["id"] if "id" in data else None)
+                  data["b"], id=data["id"] if "id" in data else None, calendar_id=calendar_id)
     msg = "OK" if ok else sys.last_value
     return make_response(msg, 200)
 

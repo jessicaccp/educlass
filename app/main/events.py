@@ -4,12 +4,12 @@ from app import db
 from datetime import datetime
 
 
-def save(start, end, txt, color, bg, id=None):
+def save(start, end, txt, color, bg, id=None, calendar_id=None):
     start = datetime.fromisoformat(start)
     end = datetime.fromisoformat(end)
-    calendar = Calendar.query.get(1)
 
     if id is None:
+        calendar = Calendar.query.get(calendar_id)
         event = Event(**dict(
             start=start,
             end=end,
