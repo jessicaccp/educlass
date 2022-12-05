@@ -73,9 +73,9 @@
       </p>
       <p>Você tem
         <a href="{{ url_for('main.calendar') }}">
-          <span id="message_count" class="badge" style="visibility: {% if events %}visible
+          <span id="message_count" class="badge" style="visibility: {% if n_events %}visible
                                         {% else %}visible{% endif %};">
-            {{ events }}
+            {{ n_events }}
           </span>
           {{ _('eventos' )}}
         </a> neste mês.

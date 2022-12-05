@@ -61,13 +61,25 @@ def index():
         if posts.has_next else None
     prev_url = url_for('main.index', page=posts.prev_num) \
         if posts.has_prev else None
-    events = Event.query.all()
-    events = len(events)
     user = User.query.filter_by(username=current_user.username).first_or_404()
     enable_button = True if Employee.query.filter_by(employee_id=user.person_id).first() else False
+
+    teachers = Teacher.query.all()
+    students = Student.query.all()
+    events = 0
+    n_events = 0
+    teacher = next((x for x in teachers if x.id == user.person_id), None)
+    student = next((x for x in students if x.id == user.person_id), None)
+    if teacher:
+        n_events = len(teacher.classroom.calendar.events)
+        events = teacher.classroom.calendar.events
+    elif student:
+        n_events = len(student.classroom.calendar.events)
+        events = student.classroom.calendar.events
+
     return render_template('index.html', title=_('Início'), form=form,
                            posts=posts.items, next_url=next_url,
-                           prev_url=prev_url, events=events, enable_button=enable_button)
+                           prev_url=prev_url, events=events, enable_button=enable_button, n_events=n_events)
 
 
 @bp.route('/explore')
