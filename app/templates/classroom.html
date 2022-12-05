@@ -42,32 +42,20 @@
             <th>Horário</th>
         </tr>
         <tr>
-            <td>Ciências</td>
-            <td>35A M</td>
-        </tr>
-        <tr>
-            <td>Educação Física</td>
-            <td>246D M</td>
-        </tr>
-        <tr>
-            <td>Geografia</td>
-            <td>246A M</td>
-        </tr>
-        <tr>
-            <td>História</td>
-            <td>246B M</td>
-        </tr>
-        <tr>
-            <td>Inglês</td>
-            <td>35B M</td>
-        </tr>
-        <tr>
-            <td>Matemática</td>
+            <td>Química</td>
             <td>35C M</td>
         </tr>
         <tr>
-            <td>Português</td>
-            <td>246C M</td>
+            <td>Matemática</td>
+            <td>246D M</td>
+        </tr>
+        <tr>
+            <td>Literatura</td>
+            <td>246A M</td>
+        </tr>
+        <tr>
+            <td>Física</td>
+            <td>246B M</td>
         </tr>
     </table>
 
@@ -88,8 +76,8 @@
         <tbody>
             {% for teacher in teachers %}
             <tr>
-                <td></td>
-                <td>{{ teacher.name }}</td>
+                <td>{{ teacher.subject.name }}</td>
+                <td>{{ teacher.first_name }} {{ teacher.last_name }}</td>
             </tr>
             {% endfor %}
         </tbody>

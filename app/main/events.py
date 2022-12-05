@@ -1,7 +1,8 @@
 from calendar import monthrange
-from app.models import Event, Calendar
+from app.models import *
 from app import db
 from datetime import datetime
+
 
 def save(start, end, txt, color, bg, id=None):
     start = datetime.fromisoformat(start)
@@ -23,22 +24,25 @@ def save(start, end, txt, color, bg, id=None):
     db.session.commit()
     return True
 
+
 def delete(id):
     Event.query.filter_by(id=id).delete()
     db.session.commit()
     return True
 
-def get(month, year):
+
+def get(month, year, calendars_ids=None):
     daysInMonth = str(monthrange(year, month)[1])
     month = month if month > 10 else "0" + str(month)
     dateYM = str(year) + "-" + str(month) + "-"
     start = dateYM + "01 00:00:00"
     end = dateYM + daysInMonth + " 23:59:59"
-
-    rows = Event.query.filter(Event.start.between(start, end) | 
-                              Event.end.between(start, end) | 
-                              ((Event.start <= start) & 
-                               (Event.end >= end))).all()
+    rows = []
+    if calendars_ids:
+        rows = Event.query.filter((Event.calendar_id.in_(calendars_ids)) & (Event.start.between(
+            start, end) | Event.end.between(start, end) | ((Event.start <= start) & (Event.end >= end)))).all()
+    else:
+        rows = Event.query.all()
     if len(rows) == 0:
         return None
     data = {}
