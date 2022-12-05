@@ -1,17 +1,33 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <!-- TITLE, DESC, CHARSET, VIEWPORT -->
-    <title>PY Calendar</title>
-    <meta charset="utf-8">
-    <meta name="description" content="Offline Javascript Calendar App">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+{% extends "base.html" %}
 
-    <!-- STYLESHEET + JAVASCRIPT -->
-    <script defer src="static/calendar.js"></script>
-    <link rel="stylesheet" href="static/calendar.css">
-  </head>
-  <body>
+<!-- title -->
+{% block title %}
+  {% if title %}EDUCLASS · {{ title }}{% else %}{{ _('EDUCLASS') }}{% endif %}
+{% endblock %}
+<!-- / -->
+
+<!-- meta -->
+{% block metas %}
+{{ super() }}
+  <meta charset="utf-8">
+  <meta name="description" content="Offline Javascript Calendar App">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+{% endblock %}
+<!-- / -->
+
+<!-- head -->
+{% block head %}
+{{ super() }}
+  <link rel="stylesheet" href="static/calendar.css">
+  <script defer src="static/calendar.js"></script>
+{% endblock %}
+<!-- / -->
+
+<!-- content -->
+{% block content %}
+{{ super() }}
+
+<div class="container">
     <!-- (A) PERIOD SELECTOR -->
     <div id="calHead">
       <div id="calPeriod">
@@ -29,33 +45,33 @@
 
     <!-- (C) EVENT FORM -->
     <dialog id="calForm"><form method="dialog">
-      <h2 class="evt100">CALENDAR EVENT</h2>
+      <h2 class="evt100">EVENTO</h2>
       <div class="evt50">
-        <label>Start</label>
+        <label>Início</label>
         <input id="evtStart" type="datetime-local" required>
       </div>
       <div class="evt50">
-        <label>End</label>
+        <label>Fim</label>
         <input id="evtEnd" type="datetime-local" required>
       </div>
       <div class="evt50">
-        <label>Text Color</label>
+        <label>Cor do texto</label>
         <input id="evtColor" type="color" value="#000000" required>
       </div>
       <div class="evt50">
-        <label>Background Color</label>
+        <label>Cor do fundo</label>
         <input id="evtBG" type="color" value="#ffdbdb" required>
       </div>
       <div class="evt100">
-        <label>Event</label>
+        <label>Evento</label>
         <input id="evtTxt" type="text" required>
       </div>
       <div class="evt100">
         <input type="hidden" id="evtID">
-        <input type="button" id="evtCX" value="Cancel">
-        <input type="button" id="evtDel" value="Delete">
-        <input type="submit" id="evtSave" value="Save">
+        <input type="button" id="evtCX" value="Cancelar">
+        <input type="button" id="evtDel" value="Apagar">
+        <input type="submit" id="evtSave" value="Salvar">
       </div>
     </form></dialog>
-  </body>
-</html>
+</div>
+{% endblock %}

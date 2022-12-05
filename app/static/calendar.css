@@ -3,11 +3,11 @@
   font-family: Arial, Helvetica, sans-serif;
   box-sizing: border-box;
 }
-body { padding: 0; margin: 0; }
+body { padding-top: 70px; margin: 0; }
 :root {
-  --bg-color-a: #3b39af; /* page header + form label */
-  --bg-color-b: #404040; /* calendar header */
-  --bg-color-c: #d73a3a; /* buttons */
+  --bg-color-a: #62929a; /* page header + form label */
+  --bg-color-b: #efecec; /* calendar header */
+  --bg-color-c: #fbd66f; /* buttons */
 }
 
 /* (B) PERIOD SELECTOR */
@@ -20,7 +20,7 @@ body { padding: 0; margin: 0; }
 #calHead input, #calHead select {
   font-size: 24px;
   border: 0; outline: none;
-  color: #fff; background: 0;
+  color: #363434; background: 0;
   cursor: pointer;
 }
 #calHead option { color: #000; }
@@ -64,19 +64,19 @@ body { padding: 0; margin: 0; }
 .o1 { left: 14.2857%; } .o2 { left: 28.5714%; } .o3 { left: 42.8571%; }
 .o4 { left: 57.1428%; } .o5 { left: 71.4285%; } .o6 { left: 85.7142%; }
 #calDays .calCell {
-  color: #fff; background: var(--bg-color-b);
+  color: #363434; background: var(--bg-color-b);
   font-weight: 700; text-align: center;
   padding: 15px 0;
 }
 .calRowHead .calCell {
   font-size: 14px;
   font-weight: 700;
-  color: #b5b5b5;
+  color: #363434;
   padding: 5px;
 }
 .calRowBack .calCell { border: 1px solid #f5f5f5; }
 .calBlank { background: #f5f5f5; }
-.calToday { background: #feffd3; }
+.calToday { background: #62929a; }
 
 /* (D) EVENT FORM */
 #calForm {

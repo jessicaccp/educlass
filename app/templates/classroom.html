@@ -1,1 +1,72 @@
 {% extends "base.html" %}
+
+<!-- title -->
+{% block title %}
+{% if title %}EDUCLASS · {{ title }}{% else %}{{ _('EDUCLASS') }}{% endif %}
+{% endblock %}
+<!-- / -->
+
+<!-- head -->
+{% block head %}
+{{ super() }}
+<style type="text/css">
+    h1, h2 {
+        text-align: center;
+        align-content: center;
+    }
+
+    td,
+    th {
+        text-align: left;
+    }
+
+    
+</style>
+{% endblock %}
+<!-- / -->
+
+<!-- content -->
+{% block content %}
+{{super()}}
+<div class="container">
+<h1>Nome <small>Turma</small></h1>
+<p><h2>Horário</h2></p>
+<table class="table table-hover table-condensed table-responsive">
+    <tr>
+        <th>Disciplina</th>
+        <th>Horário</th>
+    </tr>
+    <tr>
+        <td>Ciências</td>
+        <td>35A M</td>
+    </tr>
+    <tr>
+        <td>Educação Física</td>
+        <td>246D M</td>
+    </tr>
+    <tr>
+        <td>Geografia</td>
+        <td>246A M</td>
+    </tr>
+    <tr>
+        <td>História</td>
+        <td>246B M</td>
+    </tr>
+    <tr>
+        <td>Inglês</td>
+        <td>35B M</td>
+    </tr>
+    <tr>
+        <td>Matemática</td>
+        <td>35C M</td>
+    </tr>
+    <tr>
+        <td>Português</td>
+        <td>246C M</td>
+    </tr>
+</table>
+<h3><small><strong>Observação:</strong> A 7h30, B 8h45, C 10h30, D 12h15</small></h3>
+
+</div>
+{% endblock %}
+<!-- / -->
