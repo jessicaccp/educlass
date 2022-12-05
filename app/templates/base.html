@@ -86,12 +86,15 @@
                                     class="glyphicon glyphicon-home"></span> Início</a></li>
                                 <li><a title="Calendário" href="{{ url_for('main.calendar') }}"><span
                                             class="glyphicon glyphicon-calendar"></span> Calendário</a></li>
+                                {% if enable_button %}
+                                {% else %}
                                 <li><a title="Notas" href="{{ url_for('main.grades') }}"><span
                                             class="glyphicon glyphicon-bookmark"></span> Notas</a></li>
                                 <li><a title="Presenças" href="{{ url_for('main.attendance') }}"><span
                                             class="glyphicon glyphicon-check"></span> Frequência</a></li>
                                 <li><a title="Turma" href="{{ url_for('main.classroom') }}"><span
                                             class="glyphicon glyphicon-education"></span> Turma</a></li>
+                                {% endif %}
                                 <!-- / -->
 
                                 <li role="separator" class="divider"></li>

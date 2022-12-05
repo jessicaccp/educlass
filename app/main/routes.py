@@ -63,9 +63,11 @@ def index():
         if posts.has_prev else None
     events = Event.query.all()
     events = len(events)
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    enable_button = True if Employee.query.filter_by(employee_id=user.person_id).first() else False
     return render_template('index.html', title=_('Início'), form=form,
                            posts=posts.items, next_url=next_url,
-                           prev_url=prev_url, events=events)
+                           prev_url=prev_url, events=events, enable_button=enable_button)
 
 
 @bp.route('/explore')
@@ -97,8 +99,10 @@ def user(username):
     prev_url = url_for('main.user', username=user.username,
                        page=posts.prev_num) if posts.has_prev else None
     form = EmptyForm()
+    user1 = User.query.filter_by(username=current_user.username).first_or_404()
+    enable_button = True if Employee.query.filter_by(employee_id=user1.person_id).first() else False
     return render_template('user.html', title=_('Perfil'), user=user, posts=posts.items,
-                           next_url=next_url, prev_url=prev_url, form=form)
+                           next_url=next_url, prev_url=prev_url, form=form, enable_button=enable_button)
 
 
 @bp.route('/user/<username>/popup')
@@ -122,8 +126,10 @@ def edit_profile():
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.about_me.data = current_user.about_me
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    enable_button = True if Employee.query.filter_by(employee_id=user.person_id).first() else False
     return render_template('edit_profile.html', title=_('Editar Perfil'),
-                           form=form)
+                           form=form, enable_button=enable_button)
 
 
 @bp.route('/follow/<username>', methods=['POST'])
@@ -186,8 +192,10 @@ def search():
         if total > page * current_app.config['POSTS_PER_PAGE'] else None
     prev_url = url_for('main.search', q=g.search_form.q.data, page=page - 1) \
         if page > 1 else None
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    enable_button = True if Employee.query.filter_by(employee_id=user.person_id).first() else False
     return render_template('search.html', title=_('Pesquisa'), posts=posts,
-                           next_url=next_url, prev_url=prev_url)
+                           next_url=next_url, prev_url=prev_url, enable_button=enable_button)
 
 
 @bp.route('/send_message/<recipient>', methods=['GET', 'POST'])
@@ -203,8 +211,10 @@ def send_message(recipient):
         db.session.commit()
         flash(_('Sua mensagem foi enviada.'))
         return redirect(url_for('main.user', username=recipient))
+    user1 = User.query.filter_by(username=current_user.username).first_or_404()
+    enable_button = True if Employee.query.filter_by(employee_id=user1.person_id).first() else False
     return render_template('send_message.html', title=_('Enviar Mensagem'),
-                           form=form, recipient=recipient)
+                           form=form, recipient=recipient, enable_button=enable_button)
 
 
 @bp.route('/messages')
@@ -222,8 +232,10 @@ def messages():
         if messages.has_next else None
     prev_url = url_for('main.messages', page=messages.prev_num) \
         if messages.has_prev else None
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    enable_button = True if Employee.query.filter_by(employee_id=user.person_id).first() else False
     return render_template('messages.html', title=_('Mensagens'), messages=messages.items,
-                           next_url=next_url, prev_url=prev_url)
+                           next_url=next_url, prev_url=prev_url, enable_button=enable_button)
 
 
 @bp.route('/export_posts')
@@ -263,7 +275,8 @@ def calendar():
 def grades():
     user = User.query.filter_by(username=current_user.username).first_or_404()
     student_subject_list = StudentSubject.query.filter_by(student_id=user.person_id).all()
-    return render_template('grades.html', title=_('Notas'), student_subject_list=student_subject_list)
+    enable_button = True if Employee.query.filter_by(employee_id=user.person_id).first() else False
+    return render_template('grades.html', title=_('Notas'), student_subject_list=student_subject_list, enable_button=enable_button)
 
 
 @bp.route('/attendance')
@@ -271,8 +284,8 @@ def grades():
 def attendance():
     user = User.query.filter_by(username=current_user.username).first_or_404()
     student_subject_list = StudentSubject.query.filter_by(student_id=user.person_id).all()
-
-    return render_template('attendance.html', title=_('Frequência'), student_subject_list=student_subject_list)
+    enable_button = True if Employee.query.filter_by(employee_id=user.person_id).first() else False
+    return render_template('attendance.html', title=_('Frequência'), student_subject_list=student_subject_list, enable_button=enable_button)
 
 
 @bp.route('/classroom')
@@ -280,18 +293,28 @@ def attendance():
 def classroom():
     user = User.query.filter_by(username=current_user.username).first_or_404()
     student = Student.query.filter_by(id=user.person_id).first_or_404()
-    
-    return render_template('classroom.html', title=_('Turma'), teachers=student.classroom.teachers)
+    enable_button = True if Employee.query.filter_by(employee_id=user.person_id).first() else False
+    return render_template('classroom.html', title=_('Turma'), teachers=student.classroom.teachers, enable_button=enable_button)
 
 
 @bp.route('/support')
 def support():
-    return render_template('support.html', title=_('Suporte'))
+    if current_user.is_authenticated:
+        user = User.query.filter_by(username=current_user.username).first_or_404()
+        enable_button = True if Employee.query.filter_by(employee_id=user.person_id).first() else False
+    else:
+        enable_button = False
+    return render_template('support.html', title=_('Suporte'), enable_button=enable_button)
 
 
 @bp.route('/terms_and_privacy')
 def terms_and_privacy():
-    return render_template('terms_and_privacy.html', title=_('Termos e Privacidade'))
+    if current_user.is_authenticated:
+        user = User.query.filter_by(username=current_user.username).first_or_404()
+        enable_button = True if Employee.query.filter_by(employee_id=user.person_id).first() else False
+    else:
+        enable_button = False
+    return render_template('terms_and_privacy.html', title=_('Termos e Privacidade'), enable_button=enable_button)
 
 @bp.route('/calendario/api/get', methods=["POST"])
 @login_required
