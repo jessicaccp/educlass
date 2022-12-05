@@ -13,6 +13,7 @@ from app.translate import translate
 from app.main import bp
 import app.main.events as evt
 from functools import wraps
+from random import randint
 
 
 def admin_required(f):
@@ -280,6 +281,7 @@ def support():
 def terms_and_privacy():
     return render_template('terms_and_privacy.html', title=_('Termos e Privacidade'))
 
+
 @bp.route('/calendario', methods=["GET", "POST"])
 @login_required
 def calendario():
@@ -315,6 +317,7 @@ def delete():
 
 @bp.route('/init')
 def init_db():
+    db.session.close()
     db.drop_all()
     db.create_all()
 
@@ -356,39 +359,100 @@ def init_db():
     student_user.set_password('12345')
 
     student1 = Student(**{
-        'first_name': 'Crowley',
-        'last_name': 'Segundo',
-        'cpf': '939.393.939-39',
-    })
-    student_user1 = User(**{
-        'username': 'crowley',
-        'email': 'crowley@gmail.com'
-    })
-    student_user1.set_password('12345')
-
-    teacher = Teacher(**{
         'first_name': 'Jupiter',
         'last_name': 'Terceiro',
         'cpf': '333.333.333-33',
-        'salary': '12.000,00'
     })
-    teacher_user = User(**{
+    student_user1 = User(**{
         'username': 'jupiter',
         'email': 'jupiter@gmail.com'
     })
-    teacher_user.set_password('12345')
+    student_user1.set_password('12345')
 
-    math = Subject(**{
+    quimica = Subject(**{
+        'name': 'Química'
+    })
+
+    matematica = Subject(**{
         'name': 'Matemática'
     })
-    portuguese = Subject(**{
-        'name': 'Português'
+
+    literatura = Subject(**{
+        'name': 'Literatura'
     })
 
-    student.subjects = [math, portuguese]
+    fisica = Subject(**{
+        'name': 'Física'
+    })
+
+    teacher = Teacher(**{
+        'first_name': 'Edward ',
+        'last_name': 'Crowley',
+        'cpf': '939.393.939-39',
+        'salary': '12.000,00',
+        'subject': quimica,
+        'person_type': 'employee'
+    })
+    teacher_user = User(**{
+        'username': 'crowley',
+        'email': 'crowley@gmail.com'
+    })
+    teacher_user.set_password('12345')
+
+    teacher1 = Teacher(**{
+        'first_name': 'Dion',
+        'last_name': 'Fortune',
+        'cpf': '444.444.444-44',
+        'salary': '12.000,00',
+        'subject': matematica,
+        'person_type': 'employee'
+    })
+    teacher_user1 = User(**{
+        'username': 'dion',
+        'email': 'dion@gmail.com'
+    })
+    teacher_user1.set_password('12345')
+
+    teacher2 = Teacher(**{
+        'first_name': 'Alphonse',
+        'last_name': 'Constant',
+        'cpf': '555.555.555-555',
+        'salary': '12.000,00',
+        'subject': literatura,
+        'person_type': 'employee'
+    })
+    teacher_user2 = User(**{
+        'username': 'alphonse',
+        'email': 'alphonse@gmail.com'
+    })
+    teacher_user2.set_password('12345')
+
+    teacher3 = Teacher(**{
+        'first_name': 'Samuel',
+        'last_name': 'Mathers',
+        'cpf': '666.666.666-66',
+        'salary': '12.000,00',
+        'subject': fisica,
+        'person_type': 'employee'
+    })
+    teacher_user3 = User(**{
+        'username': 'samuel',
+        'email': 'samuel@gmail.com'
+    })
+    teacher_user3.set_password('12345')
+
     student.legal_guardian = legal
-    student1.subjects = [math, portuguese]
     student1.legal_guardian = legal
+
+    stu_sub = StudentSubject(fault=randint(
+        0, 10), attendence=randint(5, 20), score=randint(1, 100), subject=matematica, student=student)
+    stu_sub2 = StudentSubject(fault=randint(
+        0, 10), attendence=randint(5, 20), score=randint(1, 100), subject=literatura, student=student)
+
+    stu_sub3 = StudentSubject(fault=randint(
+        0, 10), attendence=randint(5, 20), score=randint(1, 100), subject=fisica, student=student1)
+    stu_sub4 = StudentSubject(fault=randint(
+        0, 10), attendence=randint(5, 20), score=randint(1, 100), subject=quimica, student=student1)
 
     admin_user.person = admin
     admin_user.roles = [admin_role, maintener_role, member_role]
@@ -404,14 +468,19 @@ def init_db():
     teacher_user.roles = [maintener_role, member_role]
     teacher_user.person = teacher
 
-    classroom = Classroom()
-    classroom.students.append(student)
-    classroom.students.append(student1)
-    classroom.teachers.append(teacher)
+    classroom1 = Classroom(id=1)
+    classroom1.students.append(student)
+    classroom1.teachers.append(teacher)
+    classroom1.teachers.append(teacher1)
 
-    events = [
+    classroom2 = Classroom(id=2)
+    classroom2.students.append(student1)
+    classroom2.teachers.append(teacher2)
+    classroom2.teachers.append(teacher3)
+
+    events1 = [
         Event(
-            start=datetime.fromisoformat('2022-12-15 03:00:00'),
+            start=datetime.fromisoformat('2022-12-19 03:00:00'),
             end=datetime.fromisoformat('2022-12-30 03:00:00'),
             text='Férias',
             color='#000000',
@@ -426,17 +495,41 @@ def init_db():
         )
     ]
 
-    calendar = Calendar()
-    calendar.events = events
-    classroom.calendar = calendar
+    events2 = [
+        Event(
+            start=datetime.fromisoformat('2022-12-19 03:00:00'),
+            end=datetime.fromisoformat('2022-12-30 03:00:00'),
+            text='Férias',
+            color='#000000',
+            bg='#1aa7ec'
+        ),
+        Event(
+            start=datetime.fromisoformat('2022-12-12 03:00:00'),
+            end=datetime.fromisoformat('2022-12-16 03:00:00'),
+            text='Semana de provas',
+            color='#000000',
+            bg='#ffdbdb'
+        )
+    ]
 
-    legal.wards.append(student)
+    calendar1 = Calendar()
+    calendar1.events = events1
+    classroom1.calendar = calendar1
+
+    calendar2 = Calendar()
+    calendar2.events = events2
+    classroom2.calendar = calendar2
+
     db.session.add(admin_user)
     db.session.add(legal_user)
     db.session.add(student_user)
     db.session.add(student_user1)
     db.session.add(teacher_user)
-    db.session.add(classroom)
+    db.session.add(teacher_user1)
+    db.session.add(teacher_user2)
+    db.session.add(teacher_user3)
+    db.session.add(classroom1)
+    db.session.add(classroom2)
     db.session.commit()
 
     return 'Deu bom'

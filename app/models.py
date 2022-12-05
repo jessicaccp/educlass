@@ -15,7 +15,6 @@ from app.search import add_to_index, remove_from_index, query_index
 from sqlalchemy_serializer import SerializerMixin
 
 
-
 class SearchableMixin(object):
     @classmethod
     def search(cls, expression, page, per_page):
@@ -245,16 +244,21 @@ class User(UserMixin, PaginatedAPIMixin, db.Model):
 def load_user(id):
     return User.query.get(int(id))
 
+
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(50), unique=True)
 
+
 class UserRoles(db.Model):
     __tablename__ = 'user_roles'
     id = db.Column(db.Integer(), primary_key=True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
-    role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
+    user_id = db.Column(db.Integer(), db.ForeignKey(
+        'user.id', ondelete='CASCADE'))
+    role_id = db.Column(db.Integer(), db.ForeignKey(
+        'roles.id', ondelete='CASCADE'))
+
 
 class Post(SearchableMixin, db.Model):
     __searchable__ = ['body']
@@ -308,6 +312,7 @@ class Task(db.Model):
         job = self.get_rq_job()
         return job.meta.get('progress', 0) if job is not None else 100
 
+
 class Person(db.Model, SerializerMixin):
     person_id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(128))
@@ -321,10 +326,12 @@ class Person(db.Model, SerializerMixin):
         "polymorphic_on": person_type
     }
 
+
 class LegalGuardian(Person):
     __tablename__ = 'legal_guardian'
     id = db.Column(None, db.ForeignKey('person.person_id'), primary_key=True)
-    wards = db.relationship('Student', foreign_keys='Student.id', back_populates="legal_guardian")
+    wards = db.relationship(
+        'Student', foreign_keys='Student.id', back_populates="legal_guardian")
     __mapper_args__ = {
         'polymorphic_identity': 'legal_guardian',
         'with_polymorphic': '*'
@@ -333,13 +340,17 @@ class LegalGuardian(Person):
 
 class Student(Person):
     id = db.Column(None, db.ForeignKey('person.person_id'), primary_key=True)
-    subjects = db.relationship('Subject', back_populates='student')
+
     legal_guardian_id = db.Column(
         db.Integer, db.ForeignKey('legal_guardian.id'))
-    legal_guardian = db.relationship('LegalGuardian', foreign_keys=[legal_guardian_id], back_populates='wards')
+    legal_guardian = db.relationship('LegalGuardian', foreign_keys=[
+                                     legal_guardian_id], back_populates='wards')
     classroom_id = db.Column(
         db.Integer, db.ForeignKey('classroom.id'))
     classroom = db.relationship('Classroom', back_populates='students')
+
+    subjects = db.relationship('StudentSubject', back_populates='student')
+
     __mapper_args__ = {
         'polymorphic_identity': 'student',
         'with_polymorphic': '*'
@@ -347,7 +358,8 @@ class Student(Person):
 
 
 class Employee(Person):
-    employee_id = db.Column(None, db.ForeignKey('person.person_id'), primary_key=True)
+    employee_id = db.Column(None, db.ForeignKey(
+        'person.person_id'), primary_key=True)
     salary = db.Column(db.String(128))
     employee_type = db.Column(db.String(50))
     __mapper_args__ = {
@@ -358,11 +370,12 @@ class Employee(Person):
 
 
 class Teacher(Employee):
-    id = db.Column(None, db.ForeignKey('employee.employee_id'), primary_key=True)
-    subjects = db.relationship(
-        'Subject', back_populates='teacher', lazy='dynamic')
-    classrooms_id = db.Column(None, db.ForeignKey('classroom.id'))
-    classrooms = db.relationship('Classroom', back_populates='teachers')
+    id = db.Column(None, db.ForeignKey(
+        'employee.employee_id'), primary_key=True)
+    subject = db.relationship(
+        'Subject', back_populates='teacher', uselist=False)
+    classroom_id = db.Column(None, db.ForeignKey('classroom.id'))
+    classroom = db.relationship('Classroom', back_populates='teachers')
     __mapper_args__ = {
         'polymorphic_identity': 'teacher',
         'with_polymorphic': '*'
@@ -370,18 +383,12 @@ class Teacher(Employee):
 
 
 class Coordinator(Employee):
-    id = db.Column(None, db.ForeignKey('employee.employee_id'), primary_key=True)
+    id = db.Column(None, db.ForeignKey(
+        'employee.employee_id'), primary_key=True)
     __mapper_args__ = {
         'polymorphic_identity': 'coordinator',
         'with_polymorphic': '*'
     }
-
-
-class Assessment(db.Model, SerializerMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    score = db.Column(db.Integer)
-    subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'))
-    subject = db.relationship('Subject', back_populates='assessments')
 
 
 class Subject(db.Model, SerializerMixin):
@@ -389,17 +396,14 @@ class Subject(db.Model, SerializerMixin):
     name = db.Column(db.String(128))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
     teacher = db.relationship(
-        'Teacher', back_populates='subjects')
-    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
-    student = db.relationship('Student', back_populates='subjects')
-    assessments = db.relationship('Assessment', back_populates='subject')
-
+        'Teacher', back_populates='subject')
+    students = db.relationship('StudentSubject', back_populates='subject')
 
 
 class Event(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     start = db.Column(db.DateTime, index=True,
-                           default=datetime.utcnow, onupdate=datetime.utcnow)
+                      default=datetime.utcnow, onupdate=datetime.utcnow)
     end = db.Column(db.DateTime, index=True)
     text = db.Column(db.String(255))
     color = db.Column(db.String(255))
@@ -422,6 +426,21 @@ class Classroom(db.Model, SerializerMixin):
     students = db.relationship(
         'Student', back_populates='classroom')
     teachers = db.relationship(
-        'Teacher', back_populates='classrooms')
+        'Teacher', back_populates='classroom')
     calendar = db.relationship(
         "Calendar", back_populates="classroom", uselist=False)
+
+
+class StudentSubject(db.Model):
+    __tablename__ = 'student_subject'
+    student_id = db.Column(db.Integer, db.ForeignKey(
+        'student.id'), primary_key=True)
+    subject_id = db.Column(db.Integer, db.ForeignKey(
+        'subject.id'), primary_key=True)
+
+    fault = db.Column(db.Integer)
+    attendence = db.Column(db.Integer)
+    score = db.Column(db.Integer)
+
+    student = db.relationship('Student', back_populates='subjects')
+    subject = db.relationship('Subject', back_populates='students')
