@@ -308,7 +308,7 @@ def get_calendar():
     if teacher:
         calendars_ids.append(teacher.classroom.calendar.id)
     elif student:
-        (student.classroom.calendar.id)
+        calendars_ids.append(student.classroom.calendar.id)
     elif legal:
         for w in legal.wards:
             calendars_ids.append(w.classroom.calendar.id)
