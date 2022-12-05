@@ -10,7 +10,8 @@
 {% block head %}
 {{ super() }}
 <style type="text/css">
-    h1, h2 {
+    h1,
+    h2 {
         text-align: center;
         align-content: center;
     }
@@ -19,8 +20,6 @@
     th {
         text-align: left;
     }
-
-    
 </style>
 {% endblock %}
 <!-- / -->
@@ -29,43 +28,72 @@
 {% block content %}
 {{super()}}
 <div class="container">
-<h1>Nome <small>Turma</small></h1>
-<p><h2>Horário</h2></p>
-<table class="table table-hover table-condensed table-responsive">
-    <tr>
-        <th>Disciplina</th>
-        <th>Horário</th>
-    </tr>
-    <tr>
-        <td>Ciências</td>
-        <td>35A M</td>
-    </tr>
-    <tr>
-        <td>Educação Física</td>
-        <td>246D M</td>
-    </tr>
-    <tr>
-        <td>Geografia</td>
-        <td>246A M</td>
-    </tr>
-    <tr>
-        <td>História</td>
-        <td>246B M</td>
-    </tr>
-    <tr>
-        <td>Inglês</td>
-        <td>35B M</td>
-    </tr>
-    <tr>
-        <td>Matemática</td>
-        <td>35C M</td>
-    </tr>
-    <tr>
-        <td>Português</td>
-        <td>246C M</td>
-    </tr>
-</table>
-<h3><small><strong>Observação:</strong> A 7h30, B 8h45, C 10h30, D 12h15</small></h3>
+
+    <!-- aluno e turma -->
+    <h1>{{ _('%(username)s', username=current_user.username) }} <small>5º A</small></h1>
+
+    <!-- tabela de horários da turma -->
+    <p>
+    <h2>Horário</h2>
+    </p>
+    <table class="table table-hover table-condensed table-responsive">
+        <tr>
+            <th>Disciplina</th>
+            <th>Horário</th>
+        </tr>
+        <tr>
+            <td>Ciências</td>
+            <td>35A M</td>
+        </tr>
+        <tr>
+            <td>Educação Física</td>
+            <td>246D M</td>
+        </tr>
+        <tr>
+            <td>Geografia</td>
+            <td>246A M</td>
+        </tr>
+        <tr>
+            <td>História</td>
+            <td>246B M</td>
+        </tr>
+        <tr>
+            <td>Inglês</td>
+            <td>35B M</td>
+        </tr>
+        <tr>
+            <td>Matemática</td>
+            <td>35C M</td>
+        </tr>
+        <tr>
+            <td>Português</td>
+            <td>246C M</td>
+        </tr>
+    </table>
+
+    <!-- legenda dos horários -->
+    <h3><small><strong>Observação:</strong> A 7h30, B 8h45, C 10h30, D 12h15</small></h3>
+
+    <!-- tabela de professores da turma -->
+    <p>
+    <h2>Professores</h2>
+    </p>
+    <table class="table table-hover table-condensed table-responsive">
+        <thead>
+            <tr>
+                <th>Disciplina</th>
+                <th>Professor</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for teacher in teachers %}
+            <tr>
+                <td></td>
+                <td>{{ teacher.name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 </div>
 {% endblock %}

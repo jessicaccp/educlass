@@ -3,49 +3,49 @@
 
 <!-- title -->
 {% block title %}
-  {% if title %}EDUCLASS · {{ title }}{% else %}{{ _('EDUCLASS') }}{% endif %}
+{% if title %}EDUCLASS · {{ title }}{% else %}{{ _('EDUCLASS') }}{% endif %}
 {% endblock %}
 <!-- / -->
 
 <!-- meta -->
 {% block metas %}
 {{ super() }}
-  <meta charset="utf-8">
-  <meta name="description" content="Offline Javascript Calendar App">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+<meta charset="utf-8">
+<meta name="description" content="Offline Javascript Calendar App">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
 {% endblock %}
 <!-- / -->
 
 <!-- head -->
 {% block head %}
 {{ super() }}
-  <link rel="stylesheet" href="static/calendar.css">
-  <script defer src="static/calendar.js"></script>
-
-  <style type="text/css">
-    select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  text-indent: 1px;
-  text-overflow: '';
-    }
-    </style>
+<link rel="stylesheet" href="static/calendar.css">
+<script defer src="static/calendar.js"></script>
 
 <style type="text/css">
-    body {
-        padding-top: 70px;
-        padding-bottom: 30px;
-    }
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 1px;
+    text-overflow: '';
+  }
+</style>
 
-    footer {
-        padding: 0 10px;
-        position: fixed;
-        bottom: 0;
-        background-color: white;
-        width: 100%;
-        height: 20px;
-        z-index:100;
-    }
+<style type="text/css">
+  body {
+    padding-top: 70px;
+    padding-bottom: 30px;
+  }
+
+  footer {
+    padding: 0 10px;
+    position: fixed;
+    bottom: 0;
+    background-color: white;
+    width: 100%;
+    height: 20px;
+    z-index: 100;
+  }
 </style>
 {% endblock %}
 <!-- / -->
@@ -54,106 +54,113 @@
 {{super()}}
 <div class="container">
 
+  <!-- (A) PERIOD SELECTOR -->
+  <div class="row">
 
-
-<!-- (A) PERIOD SELECTOR -->
-<div class="row">
     <!-- texto-->
     <div class="col-md-4">
-        <h2>{{ _('Olá, %(username)s!', username=current_user.username) }}</h2><br>
-        <p>Você tem
-            <a href="{{ url_for('main.messages') }}">
-                {% set new_messages = current_user.new_messages() %}
-                <span id="message_count" class="badge" style="visibility: {% if new_messages %}visible
+      <h2>{{ _('Olá, %(username)s!', username=current_user.username) }}</h2><br>
+      <p>Você tem
+        <a href="{{ url_for('main.messages') }}">
+          {% set new_messages = current_user.new_messages() %}
+          <span id="message_count" class="badge" style="visibility: {% if new_messages %}visible
                                             {% else %}visible{% endif %};">
-                    {{ new_messages }}
-                </span>
-                {{ _('novas mensagens' )}}.
-            </a>
+            {{ new_messages }}
+          </span>
+          {{ _('novas mensagens' )}}.
+        </a>
 
-        </p>
-        <p>Você tem eventos.</p>
+      </p>
+      <p>Você tem
+        <a href="{{ url_for('main.calendar') }}">
+          <span id="message_count" class="badge" style="visibility: {% if events %}visible
+                                        {% else %}visible{% endif %};">
+            {{ events }}
+          </span>
+          {{ _('eventos' )}}
+        </a> neste mês.
+      </p>
     </div>
 
+    <!-- bloco de notas -->
     <div class="col-md-4">
-        <h2>Bloco de notas</h2>
-        <p>Aproveite esse espaço para salvar suas anotações.</p>
-        {% if form %}
-    {{ wtf.quick_form(form) }}
-    <br>
-    {% endif %}
+      <h2>Bloco de notas</h2>
+      <p>Aproveite esse espaço para salvar suas anotações.</p>
+      {% if form %}
+      {{ wtf.quick_form(form) }}
+      <br>
+      {% endif %}
 
-    {% for post in posts %}
-        {% include '_post.html' %}
-    {% endfor %}
-    <nav aria-label="...">
+      {% for post in posts %}
+      {% include '_post.html' %}
+      {% endfor %}
+      <nav aria-label="...">
         <ul class="pager">
-            <li class="previous{% if not prev_url %} disabled{% endif %}">
-                <a href="{{ prev_url or '#' }}">
-                    <span aria-hidden="true">&larr;</span> {{ _('Mais recentes') }}
-                </a>
-            </li>
-            <li class="next{% if not next_url %} disabled{% endif %}">
-                <a href="{{ next_url or '#' }}">
-                    {{ _('Mais antigas') }} <span aria-hidden="true">&rarr;</span>
-                </a>
-            </li>
+          <li class="previous{% if not prev_url %} disabled{% endif %}">
+            <a href="{{ prev_url or '#' }}">
+              <span aria-hidden="true">&larr;</span> {{ _('Mais recentes') }}
+            </a>
+          </li>
+          <li class="next{% if not next_url %} disabled{% endif %}">
+            <a href="{{ next_url or '#' }}">
+              {{ _('Mais antigas') }} <span aria-hidden="true">&rarr;</span>
+            </a>
+          </li>
         </ul>
-    </nav>
-
+      </nav>
     </div>
 
     <!-- calendario -->
     <div class="col-md-4">
-        <h2>Calendário do mês</h2>
-        <p>Esses são seus próximos eventos. Fique de olho!</p>
-        <div id="calHead">
-            <div id="calPeriod">
-              <select id="calMonth" disabled display="none"></select>
-              <input id="calYear" type="number" disabled>
-            </div>
-            <input id="calAdd" type="button" value="" disabled style="background-color: #62929a;">
+      <h2>Calendário do mês</h2>
+      <p>Esses são seus próximos eventos. Fique de olho!</p>
+      <div id="calHead">
+        <div id="calPeriod">
+          <select id="calMonth" disabled display="none"></select>
+          <input id="calYear" type="number" disabled>
+        </div>
+        <input id="calAdd" type="button" value="" disabled style="background-color: #62929a;">
+      </div>
+
+      <!-- (B) CALENDAR WRAPPER -->
+      <div id="calWrap">
+        <div id="calDays"></div>
+        <div id="calBody"></div>
+      </div>
+
+      <!-- (C) EVENT FORM -->
+      <dialog id="calForm">
+        <form method="dialog">
+          <h2 class="evt100"></h2>
+          <div class="evt50">
+            <!-- <label>Início</label> -->
+            <!-- <input id="evtStart" type="datetime-local" required> -->
           </div>
-        
-          <!-- (B) CALENDAR WRAPPER -->
-          <div id="calWrap">
-            <div id="calDays"></div>
-            <div id="calBody"></div>
+          <div class="evt50">
+            <!-- <label>Fim</label> -->
+            <!-- <input id="evtEnd" type="datetime-local" required> -->
           </div>
-        
-          <!-- (C) EVENT FORM -->
-          <dialog id="calForm">
-            <form method="dialog">
-            <h2 class="evt100"></h2>
-            <div class="evt50">
-              <!-- <label>Início</label> -->
-              <!-- <input id="evtStart" type="datetime-local" required> -->
-            </div>
-            <div class="evt50">
-              <!-- <label>Fim</label> -->
-              <!-- <input id="evtEnd" type="datetime-local" required> -->
-            </div>
-            <div class="evt50">
-              <!-- <label>Cor do texto</label> -->
-              <!-- <input id="evtColor" type="color" value="#000000" required> -->
-            </div>
-            <div class="evt50">
-              <!-- <label>Cor do fundo</label> -->
-              <!-- <input id="evtBG" type="color" value="#ffdbdb" required> -->
-            </div>
-            <div class="evt100">
-              <!-- <label>Evento</label> -->
-              <!-- <input id="evtTxt" type="text" required> -->
-            </div>
-            <div class="evt100">
-              <input type="hidden" id="evtID">
-              <input type="button" id="evtCX" value="Cancelar">
-              <input type="button" id="evtDel" value="Apagar">
-              <input type="submit" id="evtSave" value="Salvar">
-            </div>
-          </form>
-        </dialog>
-        
+          <div class="evt50">
+            <!-- <label>Cor do texto</label> -->
+            <!-- <input id="evtColor" type="color" value="#000000" required> -->
+          </div>
+          <div class="evt50">
+            <!-- <label>Cor do fundo</label> -->
+            <!-- <input id="evtBG" type="color" value="#ffdbdb" required> -->
+          </div>
+          <div class="evt100">
+            <!-- <label>Evento</label> -->
+            <!-- <input id="evtTxt" type="text" required> -->
+          </div>
+          <div class="evt100">
+            <input type="hidden" id="evtID">
+            <input type="button" id="evtCX" value="Cancelar">
+            <input type="button" id="evtDel" value="Apagar">
+            <input type="submit" id="evtSave" value="Salvar">
+          </div>
+        </form>
+      </dialog>
+
     </div>
   </div>
 </div>

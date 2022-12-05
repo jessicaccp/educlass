@@ -60,9 +60,11 @@ def index():
         if posts.has_next else None
     prev_url = url_for('main.index', page=posts.prev_num) \
         if posts.has_prev else None
+    events = Event.query.all()
+    events = len(events)
     return render_template('index.html', title=_('Início'), form=form,
                            posts=posts.items, next_url=next_url,
-                           prev_url=prev_url)
+                           prev_url=prev_url, events=events)
 
 
 @bp.route('/explore')
@@ -268,7 +270,9 @@ def attendance():
 @bp.route('/classroom')
 @login_required
 def classroom():
-    return render_template('classroom.html', title=_('Turma'))
+    teachers = Teacher.query.all()
+    subjects = ['Matemática']
+    return render_template('classroom.html', title=_('Turma'), teachers=teachers, subjects=subjects)
 
 
 @bp.route('/support')
